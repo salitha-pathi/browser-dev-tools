@@ -55,6 +55,18 @@ npm run build
 npm run preview
 ```
 
+### Publish to GitHub Pages
+
+This repository is configured to deploy automatically when `main` is pushed.
+
+1. Commit and push your changes to `main`.
+2. GitHub Actions will build the app and publish the `dist/` output to the `gh-pages` branch.
+3. Enable Pages in repository settings if not already enabled.
+
+The site will be available at:
+
+`https://salitha-pathi.github.io/browser-dev-tools`
+
 ## Quality Checks
 
 ```bash
