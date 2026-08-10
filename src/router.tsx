@@ -10,6 +10,8 @@ const router = createBrowserRouter([
       { path: '/json-diff', element: <JsonDiff /> },
     ],
   },
-])
+], {
+  basename: import.meta.env.BASE_URL,
+})
 
 export default router

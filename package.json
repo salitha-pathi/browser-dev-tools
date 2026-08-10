@@ -1,6 +1,7 @@
 {
   "name": "browser-dev-tools",
   "description": "Open-source browser tools for developers",
+  "homepage": "https://salitha-pathi.github.io/browser-dev-tools",
   "repository": {
     "type": "git",
     "url": "https://github.com/salitha-pathi/browser-dev-tools"
@@ -12,6 +13,7 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "preview": "vite preview",
+    "deploy": "npm run build",
     "lint": "oxlint src",
     "lint:fix": "oxlint src --fix",
     "format": "prettier --write .",
