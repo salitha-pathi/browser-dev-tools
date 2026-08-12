@@ -2,9 +2,16 @@
 
 Open-source browser tools for developers.
 
-This repository currently includes **JSON Diff**, a web tool for comparing two JSON documents and highlighting semantic changes.
+This repository currently includes multiple browser-based developer tools under a shared app shell.
+
+## Tools
+
+- **JSON Diff**: Compare two JSON documents and highlight semantic changes.
+- **Text Escape Lab**: Escape and unescape text for developer-focused formats (JSON string values, URL component, form URL encoding, HTML, XML, JavaScript string literals, and Base64 UTF-8).
 
 ## Features
+
+### JSON Diff
 
 - Side-by-side JSON editors powered by Monaco Editor
 - Semantic JSON diffing (add / modify / remove)
@@ -14,6 +21,16 @@ This repository currently includes **JSON Diff**, a web tool for comparing two J
 - Auto-save editor content to local storage
 - Fast updates with debounced diff calculation
 
+### Text Escape Lab
+
+- Two-pane input/output workflow with Escape and Unescape directions
+- Multiple conversion modes in a single tool
+- Mode-aware options (for example JSON include quotes, JavaScript quote style)
+- Auto-convert toggle and manual convert action
+- Swap-and-reverse workflow for quick round trips
+- Error feedback for invalid escaped/encoded input
+- Local storage persistence for input and mode preferences
+
 ## Tech Stack
 
 - React 19 + TypeScript
@@ -21,6 +38,8 @@ This repository currently includes **JSON Diff**, a web tool for comparing two J
 - Monaco Editor
 - React Router
 - Tailwind CSS 4
+- Base UI + local UI wrappers
+- fast-json-patch + json-source-map
 
 ## Getting Started
 
@@ -87,14 +106,16 @@ src/
       diff/
       monaco/
       sourceMap/
+    text-escape/
   utils/
 ```
 
 ## Roadmap
 
 - Add more developer-focused tools under a shared UI shell
+- Add mode-specific examples and presets for Text Escape Lab
 - Improve diff navigation (next/previous change jumping)
-- Add copy/export options for change sets
+- Add copy/export options for tool outputs
 
 ## License
 

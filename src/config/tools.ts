@@ -18,4 +18,13 @@ export const tools: Tool[] = [
     description: 'Compare two JSON documents and highlight semantic differences',
     category: 'Data',
   },
+  {
+    id: 'text-escape',
+    label: 'Text Escape',
+    title: 'Text Escape Lab',
+    path: '/text-escape',
+    description: 'Escape and unescape text for JSON, URL, HTML, XML, JavaScript, and Base64',
+    category: 'Encoding',
+    badge: 'new',
+  },
 ]

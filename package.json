@@ -1,6 +1,7 @@
 {
   "name": "browser-dev-tools",
   "description": "Open-source browser tools for developers",
+  "author": "Salitha Indrajith",
   "homepage": "https://salitha-pathi.github.io/browser-dev-tools",
   "repository": {
     "type": "git",
@@ -8,7 +9,7 @@
   },
   "homepage": "https://salitha-pathi.github.io/browser-dev-tools",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
