@@ -13,10 +13,13 @@ interface Props {
 export default function JsonEditorPane({ label, defaultValue, onMount, onChange }: Props) {
   const editorRef = useRef<Monaco.editor.IStandaloneCodeEditor | null>(null)
 
-  const handleMount: OnMount = (editor, monaco) => {
-    editorRef.current = editor
-    onMount(editor, monaco)
-  }
+  const handleMount: OnMount = useCallback(
+    (editor, monaco) => {
+      editorRef.current = editor
+      onMount(editor, monaco)
+    },
+    [onMount],
+  )
 
   const handleFormat = useCallback(() => {
     const editor = editorRef.current
@@ -34,14 +37,20 @@ export default function JsonEditorPane({ label, defaultValue, onMount, onChange 
   }, [])
 
   return (
-    <div className="editor-pane">
-      <div className="editor-pane__header">
-        <span className="editor-pane__label">{label}</span>
-        <button type="button" className="editor-pane__format-btn" onClick={handleFormat}>
+    <div className="flex min-w-0 flex-1 flex-col bg-[#1e1e1e]">
+      <div className="flex shrink-0 items-center justify-between border-b border-[#3c3c3c] bg-[#252526] px-3 py-[0.4rem]">
+        <span className="text-[0.8125rem] font-medium tracking-[0.04em] text-[#9d9d9d] uppercase">
+          {label}
+        </span>
+        <button
+          type="button"
+          className="cursor-pointer rounded border border-[#4a4a4a] bg-[#2d2d2d] px-[0.6rem] py-[0.2rem] text-[0.75rem] text-[#c8c8c8] transition hover:bg-[#3a3a3a]"
+          onClick={handleFormat}
+        >
           Format JSON
         </button>
       </div>
-      <div className="editor-pane__body">
+      <div className="min-h-0 flex-1">
         <Editor
           defaultLanguage="json"
           defaultValue={defaultValue}

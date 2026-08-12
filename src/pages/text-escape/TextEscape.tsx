@@ -3,7 +3,8 @@ import Editor from '@monaco-editor/react'
 import { ArrowLeftRight, Check, Copy, Eraser, Settings, Sparkles, WandSparkles } from 'lucide-react'
 import { converters, type JsQuote } from './converters'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
-import './TextEscape.css'
+import { useClickOutside } from '@/hooks/useClickOutside'
+import { cn } from '@/lib/utils'
 
 type Direction = 'escape' | 'unescape'
 
@@ -29,6 +30,7 @@ export default function TextEscape() {
   const [clearConfirm, setClearConfirm] = useState(false)
   const [settingsOpen, setSettingsOpen] = useState(false)
   const settingsRef = useRef<HTMLDivElement | null>(null)
+  useClickOutside(settingsRef, () => setSettingsOpen(false), settingsOpen)
 
   const converter = useMemo(
     () => converters.find((item) => item.id === modeId) ?? converters[0],
@@ -101,42 +103,31 @@ export default function TextEscape() {
     return () => clearTimeout(timer)
   }, [clearConfirm])
 
-  useEffect(() => {
-    if (!settingsOpen) return
-
-    function handleClickOutside(event: MouseEvent) {
-      if (!settingsRef.current) return
-      if (!settingsRef.current.contains(event.target as Node)) {
-        setSettingsOpen(false)
-      }
-    }
-
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
-  }, [settingsOpen])
-
   return (
-    <div className="text-escape">
-      <header className="text-escape__header">
-        <div className="text-escape__title-row">
-          <h1 className="text-escape__title">
-            <Sparkles className="text-escape__title-icon" aria-hidden="true" />
+    <div className="flex h-full flex-col bg-[#1e1e1e] text-[#d4d4d4]">
+      <header className="flex flex-col gap-3 border-b border-[#3c3c3c] bg-[#252526] px-5 py-3">
+        <div className="flex items-center justify-between gap-4">
+          <h1 className="m-0 inline-flex items-center gap-1.5 text-base font-semibold text-[#cccccc]">
+            <Sparkles size={16} className="text-[#4ec9b0]" aria-hidden="true" />
             Text Escape Lab
           </h1>
-          <span className={`text-escape__status ${error ? 'text-escape__status--error' : ''}`}>
+          <span className={cn('text-[0.8rem] text-[#9cdcfe]', error && 'text-[#f48771]')}>
             {error ?? 'Ready'}
           </span>
         </div>
 
-        <div className="text-escape__toolbar">
-          <div className="text-escape__modes" role="radiogroup" aria-label="Conversion mode">
+        <div className="flex items-center justify-between gap-3 max-[900px]:flex-col max-[900px]:items-start">
+          <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label="Conversion mode">
             {converters.map((item) => (
               <button
                 key={item.id}
                 type="button"
                 role="radio"
                 aria-checked={modeId === item.id}
-                className={`text-escape__mode-chip ${modeId === item.id ? 'text-escape__mode-chip--active' : ''}`}
+                className={cn(
+                  'cursor-pointer rounded-full border border-[#3f3f3f] bg-[#2a2a2a] px-[0.65rem] py-[0.45rem] text-[0.75rem] leading-none text-[#a7a7a7] transition hover:bg-[#313131] hover:text-[#d8d8d8]',
+                  modeId === item.id && 'border-[#2e6f65] bg-[#12342f] text-[#b7eee1]',
+                )}
                 onClick={() => setModeId(item.id)}
                 title={item.description}
               >
@@ -145,10 +136,13 @@ export default function TextEscape() {
             ))}
           </div>
 
-          <div className="text-escape__controls">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
-              className={`text-escape__button ${autoConvert ? 'text-escape__button--auto-active' : ''}`}
+              className={cn(
+                'inline-flex cursor-pointer items-center gap-[0.35rem] rounded border border-[#4a4a4a] bg-[#2d2d2d] px-[0.55rem] py-[0.35rem] text-[0.8125rem] text-[#c8c8c8] hover:bg-[#3a3a3a]',
+                autoConvert && 'border-[#2e6f65] bg-[#12342f] text-[#b7eee1] hover:bg-[#184239]',
+              )}
               onClick={convert}
               title={autoConvert ? 'Auto convert is ON' : 'Run conversion'}
             >
@@ -158,7 +152,12 @@ export default function TextEscape() {
 
             <button
               type="button"
-              className={`text-escape__button ${clearConfirm ? 'text-escape__button--danger' : 'text-escape__button--warning'}`}
+              className={cn(
+                'inline-flex cursor-pointer items-center gap-[0.35rem] rounded border px-[0.55rem] py-[0.35rem] text-[0.8125rem]',
+                clearConfirm
+                  ? 'border-[#ab3737] bg-[#6c1f1f] text-[#ffd9d9] hover:bg-[#802525]'
+                  : 'border-[#7a5252] bg-[#3b2727] text-[#f0c7c7] hover:bg-[#493131]',
+              )}
               onClick={handleClearClick}
               title={clearConfirm ? 'Click again to confirm clear' : 'Prepare clear confirmation'}
             >
@@ -166,10 +165,10 @@ export default function TextEscape() {
               {clearConfirm ? 'Sure?' : 'Clear'}
             </button>
 
-            <div className="text-escape__settings" ref={settingsRef}>
+            <div className="relative" ref={settingsRef}>
               <button
                 type="button"
-                className="text-escape__button text-escape__settings-trigger"
+                className="inline-flex cursor-pointer items-center gap-[0.35rem] rounded border border-[#4a4a4a] bg-[#2d2d2d] px-[0.45rem] py-[0.35rem] text-[0.8125rem] text-[#c8c8c8] hover:bg-[#3a3a3a]"
                 onClick={() => setSettingsOpen((open) => !open)}
                 aria-haspopup="menu"
                 aria-expanded={settingsOpen}
@@ -179,8 +178,15 @@ export default function TextEscape() {
               </button>
 
               {settingsOpen && (
-                <div className="text-escape__settings-menu" role="menu" aria-label="Settings">
-                  <label className="text-escape__toggle" title="Convert as you type">
+                <div
+                  className="absolute top-[calc(100%+0.35rem)] right-0 z-[5] flex min-w-[12rem] flex-col gap-[0.55rem] rounded border border-[#444] bg-[#252526] p-[0.55rem] shadow-[0_8px_24px_rgba(0,0,0,0.35)]"
+                  role="menu"
+                  aria-label="Settings"
+                >
+                  <label
+                    className="inline-flex cursor-pointer items-center gap-[0.35rem] text-[0.8rem] text-[#bdbdbd]"
+                    title="Convert as you type"
+                  >
                     <input
                       type="checkbox"
                       checked={autoConvert}
@@ -191,7 +197,7 @@ export default function TextEscape() {
 
                   {canShowJsonQuotesToggle && (
                     <label
-                      className="text-escape__toggle"
+                      className="inline-flex cursor-pointer items-center gap-[0.35rem] text-[0.8rem] text-[#bdbdbd]"
                       title="Wrap escaped output with quotes and accept quoted input when unescaping"
                     >
                       <input
@@ -205,12 +211,12 @@ export default function TextEscape() {
 
                   {canShowJsQuoteToggle && (
                     <div
-                      className="text-escape__toggle text-escape__toggle--stack"
+                      className="flex flex-col items-start gap-[0.45rem] text-[0.8rem] text-[#bdbdbd]"
                       title="Choose quote style for JS string escaping"
                     >
                       <span>Quote style</span>
                       <div
-                        className="text-escape__quote-group"
+                        className="inline-flex overflow-hidden rounded border border-[#454545]"
                         role="radiogroup"
                         aria-label="JavaScript quote style"
                       >
@@ -218,7 +224,10 @@ export default function TextEscape() {
                           type="button"
                           role="radio"
                           aria-checked={jsQuote === 'double'}
-                          className={`text-escape__quote-chip ${jsQuote === 'double' ? 'text-escape__quote-chip--active' : ''}`}
+                          className={cn(
+                            'min-w-[1.8rem] cursor-pointer border-0 px-[0.45rem] py-[0.3rem] text-[0.8rem] leading-none text-[#c8c8c8]',
+                            jsQuote === 'double' ? 'bg-[#3a3a3a] text-white' : 'bg-[#2d2d2d]',
+                          )}
                           onClick={() => setJsQuote('double')}
                         >
                           &quot;
@@ -227,7 +236,10 @@ export default function TextEscape() {
                           type="button"
                           role="radio"
                           aria-checked={jsQuote === 'single'}
-                          className={`text-escape__quote-chip ${jsQuote === 'single' ? 'text-escape__quote-chip--active' : ''}`}
+                          className={cn(
+                            'min-w-[1.8rem] cursor-pointer border-0 border-l border-[#454545] px-[0.45rem] py-[0.3rem] text-[0.8rem] leading-none text-[#c8c8c8]',
+                            jsQuote === 'single' ? 'bg-[#3a3a3a] text-white' : 'bg-[#2d2d2d]',
+                          )}
                           onClick={() => setJsQuote('single')}
                         >
                           &apos;
@@ -242,15 +254,17 @@ export default function TextEscape() {
         </div>
       </header>
 
-      <div className="text-escape__split">
-        <section className="text-pane">
-          <div className="text-pane__header">
-            <span className="text-pane__label text-pane__label--input">{inputLabel}</span>
-            <div className="text-pane__actions">
-              <span className="text-pane__meta">{getCharacterCount(input)}</span>
+      <div className="relative flex min-h-0 flex-1 bg-[#3c3c3c] max-[900px]:flex-col">
+        <section className="flex min-w-0 flex-1 flex-col bg-[#1e1e1e]">
+          <div className="flex shrink-0 items-center justify-between border-b border-[#3c3c3c] bg-[#252526] px-3 py-[0.4rem]">
+            <span className="text-[0.8125rem] font-medium tracking-[0.04em] text-[#9dc3d8] uppercase">
+              {inputLabel}
+            </span>
+            <div className="inline-flex items-center gap-[0.4rem]">
+              <span className="text-[0.75rem] text-[#8f8f8f]">{getCharacterCount(input)}</span>
               <button
                 type="button"
-                className="text-pane__icon-btn"
+                className="inline-flex size-[1.6rem] cursor-pointer items-center justify-center rounded border border-[#4a4a4a] bg-[#2d2d2d] text-[#c8c8c8] transition hover:bg-[#3a3a3a] disabled:cursor-not-allowed disabled:opacity-45"
                 onClick={() => copyText(input, 'input')}
                 title="Copy input"
                 aria-label="Copy input"
@@ -264,7 +278,7 @@ export default function TextEscape() {
               </button>
             </div>
           </div>
-          <div className="text-pane__editor" title={inputLabel}>
+          <div className="min-h-0 flex-1" title={inputLabel}>
             <Editor
               language="plaintext"
               value={input}
@@ -282,10 +296,10 @@ export default function TextEscape() {
           </div>
         </section>
 
-        <div className="text-escape__center-control">
+        <div className="relative z-[2] w-4 shrink-0 border-r border-l border-[#474747] bg-[linear-gradient(to_right,#303033,#3c3c3c_50%,#303033)] max-[900px]:h-[14px] max-[900px]:w-full max-[900px]:border-x-0 max-[900px]:border-y max-[900px]:bg-[linear-gradient(to_bottom,#303033,#3c3c3c_50%,#303033)]">
           <button
             type="button"
-            className="text-escape__center-swap"
+            className="absolute top-1/2 left-1/2 inline-flex size-[2.1rem] -translate-x-1/2 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full border border-[#2f5669] bg-[#223741] text-[#b6dff2] shadow-[0_0_0_2px_#1e1e1e] transition hover:bg-[#294450]"
             onClick={handleReverseFlow}
             title={`Reverse flow and swap panes (${flowText})`}
             aria-label="Reverse flow and swap panes"
@@ -294,14 +308,16 @@ export default function TextEscape() {
           </button>
         </div>
 
-        <section className="text-pane">
-          <div className="text-pane__header">
-            <span className="text-pane__label text-pane__label--output">{outputLabel}</span>
-            <div className="text-pane__actions">
-              <span className="text-pane__meta">{getCharacterCount(output)}</span>
+        <section className="flex min-w-0 flex-1 flex-col bg-[#1e1e1e]">
+          <div className="flex shrink-0 items-center justify-between border-b border-[#3c3c3c] bg-[#252526] px-3 py-[0.4rem]">
+            <span className="text-[0.8125rem] font-medium tracking-[0.04em] text-[#9dd8b7] uppercase">
+              {outputLabel}
+            </span>
+            <div className="inline-flex items-center gap-[0.4rem]">
+              <span className="text-[0.75rem] text-[#8f8f8f]">{getCharacterCount(output)}</span>
               <button
                 type="button"
-                className="text-pane__icon-btn"
+                className="inline-flex size-[1.6rem] cursor-pointer items-center justify-center rounded border border-[#4a4a4a] bg-[#2d2d2d] text-[#c8c8c8] transition hover:bg-[#3a3a3a] disabled:cursor-not-allowed disabled:opacity-45"
                 onClick={() => copyText(output, 'output')}
                 title="Copy output"
                 aria-label="Copy output"
@@ -315,7 +331,7 @@ export default function TextEscape() {
               </button>
             </div>
           </div>
-          <div className="text-pane__editor" title={outputLabel}>
+          <div className="min-h-0 flex-1" title={outputLabel}>
             <Editor
               language="plaintext"
               value={output}

@@ -92,6 +92,13 @@ When extending Text Escape Lab:
 - Keep feature work scoped and additive; avoid broad refactors unless explicitly requested.
 - For parsing and escaping logic, document assumptions in short comments only where behavior is non-obvious.
 
+## Persistence Expectations
+
+- Browser persistence is expected for user-entered inputs and user-selected tool settings.
+- Use the shared local-storage hook pattern already used by JSON Diff and Text Escape Lab.
+- Derived output should generally not be persisted when it can be recomputed from persisted input + settings.
+- If a feature intentionally does not persist state, document that choice in the tool folder.
+
 ## Quality Commands
 
 Use these before finishing changes:
@@ -107,3 +114,85 @@ Use these before finishing changes:
 - Avoid broad refactors unless there is a direct task requirement.
 - Maintain compatibility with GitHub Pages base path configured in Vite.
 - If introducing new modes or routes, ensure sidebar labels, route path, and page title remain consistent.
+
+## Chat Completions Guidance
+
+This section captures the current working patterns and UI/UX decisions for the Chat Completions tool.
+
+### Scope
+
+- Applies to Chat Completions files under src/pages/chat-completions/.
+- Prefer localized edits over broad refactors.
+- Preserve component boundaries:
+  - ChatCompletions.tsx owns state, request execution, and tab orchestration.
+  - Tab panels own tab-specific UI and transforms.
+
+### Product Direction
+
+- Keep a dense, developer-first UI with high information value.
+- Keep preview surfaces clean and copy-friendly.
+- Move metadata into compact badges or hover details instead of mixing into main content blocks.
+- Prefer low-friction operations for common tasks.
+
+### Response Tab Contracts
+
+Source of truth:
+
+- Treat raw response text as the source of truth.
+- Do not precompute transformed response body only at request success time.
+- Derive preview and formatted raw views from current raw response text.
+
+Preview extraction:
+
+- Handle multiple OpenAI-style response shapes (chat completions, legacy choices text, responses output forms).
+- Extract assistant output text first.
+- If assistant output text is absent and tool calls exist, preview should show copy-ready tool arguments (without decorative scaffolding lines).
+- Keep summary/protocol metadata out of preview body.
+
+Preview formatting toggle:
+
+- "Format as JSON" in Preview must format whatever is currently displayed in Preview.
+- If JSON formatting fails, return the original text unchanged.
+
+Raw formatting toggle:
+
+- Raw view may try JSON pretty print.
+- If parse fails, show original raw text unchanged.
+
+Metadata display:
+
+- Show status/meta badges only when data exists.
+- Use one shared "More" hover control for extra details instead of many inline info icons.
+
+### Messages Tab Contracts
+
+Layout model:
+
+- Use two-pane workbench:
+  - Left pane: non-editable vertical tab-style message list (role + name).
+  - Right pane: editable details for selected message.
+- Editing role/name/content on the right must immediately update left list labels.
+
+Interaction patterns:
+
+- Keep delete as two-click confirmation.
+- Keep escape/unescape actions in gear menu.
+- Ensure selection remains valid after add/remove (fallback to adjacent message when deleting active one).
+
+Monaco behavior:
+
+- Avoid clipping and line-number gutter issues by giving editor containers stable heights and proper flex constraints.
+- Use explicit editor container sizing and Monaco automatic layout.
+- If needed, trigger editor.layout() on mount for initial stability.
+
+### Layout and Sizing Guidance
+
+- Favor responsive, generic sizing with clamp(...), rem, and vh.
+- Avoid one-off pixel tuning for large editor areas.
+- Increase screen usage while avoiding unnecessary nested scrollbars.
+- Provide mobile fallbacks that stack panes and keep editors usable.
+
+### Validation Workflow
+
+- After meaningful edits, run npm run check.
+- If formatting fails, run Prettier on touched files and rerun checks.

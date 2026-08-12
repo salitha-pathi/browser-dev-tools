@@ -7,7 +7,6 @@
     "type": "git",
     "url": "https://github.com/salitha-pathi/browser-dev-tools"
   },
-  "homepage": "https://salitha-pathi.github.io/browser-dev-tools",
   "private": true,
   "version": "0.1.0",
   "type": "module",

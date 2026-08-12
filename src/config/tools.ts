@@ -27,4 +27,13 @@ export const tools: Tool[] = [
     category: 'Encoding',
     badge: 'new',
   },
+  {
+    id: 'chat-completions',
+    label: 'Chat Completions',
+    title: 'Chat Completions',
+    path: '/chat-completions',
+    description: 'Compose and run OpenAI-compatible v1/chat/completions requests in-browser',
+    category: 'AI',
+    badge: 'new',
+  },
 ]

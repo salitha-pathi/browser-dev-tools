@@ -1,4 +1,5 @@
 import { useRef, useState, useCallback, useEffect } from 'react'
+import { GitCompare } from 'lucide-react'
 import type { OnMount } from '@monaco-editor/react'
 import type * as Monaco from 'monaco-editor'
 import JsonEditorPane from './JsonEditorPane'
@@ -12,7 +13,6 @@ import {
 } from './monaco/applyDiffDecorations'
 import type { JsonChange } from './diff/types'
 import { useLocalStorage } from '@/hooks/useLocalStorage'
-import './JsonDiff.css'
 
 const DEBOUNCE_MS = 300
 
@@ -129,12 +129,15 @@ export default function JsonDiff() {
   }, [])
 
   return (
-    <div className="json-diff">
-      <header className="json-diff__header">
-        <h1 className="json-diff__title">JSON Diff</h1>
+    <div className="flex h-full flex-col bg-[#1e1e1e] text-[#d4d4d4]">
+      <header className="flex shrink-0 items-center gap-6 border-b border-[#3c3c3c] bg-[#252526] px-5 py-3">
+        <h1 className="m-0 inline-flex items-center gap-1.5 text-base font-semibold text-[#cccccc]">
+          <GitCompare size={16} aria-hidden="true" />
+          JSON Diff
+        </h1>
         <ChangeSummary changes={changes} />
       </header>
-      <div className="json-diff__editors">
+      <div className="flex flex-1 [gap:1px] overflow-hidden bg-[#3c3c3c]">
         <JsonEditorPane
           label="Original JSON"
           defaultValue={savedOriginal}

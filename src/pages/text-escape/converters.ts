@@ -1,3 +1,5 @@
+import { decodeJsonStringContent, escapeJsonStringContent } from '@/utils/jsonString'
+
 export type JsQuote = 'single' | 'double'
 
 export interface ConvertContext {
@@ -28,34 +30,6 @@ function fail(error: string): ConvertResult {
 
 function toUpperHex(value: number, width: number): string {
   return value.toString(16).toUpperCase().padStart(width, '0')
-}
-
-function escapeJsonString(input: string): string {
-  let out = ''
-  for (let i = 0; i < input.length; i++) {
-    const code = input.charCodeAt(i)
-    const ch = input[i]
-
-    if (ch === '"') out += '\\"'
-    else if (ch === '\\') out += '\\\\'
-    else if (code === 0x08) out += '\\b'
-    else if (code === 0x09) out += '\\t'
-    else if (code === 0x0a) out += '\\n'
-    else if (code === 0x0c) out += '\\f'
-    else if (code === 0x0d) out += '\\r'
-    else if (code <= 0x1f) out += `\\u${toUpperHex(code, 4)}`
-    else out += ch
-  }
-  return out
-}
-
-function unescapeJsonString(input: string): ConvertResult {
-  try {
-    const output = JSON.parse(`"${input}"`) as string
-    return ok(output)
-  } catch (error) {
-    return fail(`Invalid JSON escaped string: ${(error as Error).message}`)
-  }
 }
 
 function decodePercent(input: string, modeLabel: string): ConvertResult {
@@ -250,19 +224,12 @@ export const converters: Converter[] = [
     label: 'JSON String Value',
     description: 'Escape and unescape string content for JSON string field values',
     escape: (input, context) => {
-      const escaped = escapeJsonString(input)
+      const escaped = escapeJsonStringContent(input)
       return ok(context.jsonIncludeQuotes ? `"${escaped}"` : escaped)
     },
     unescape: (input) => {
-      const trimmed = input.trim()
-      if (trimmed.startsWith('"') && trimmed.endsWith('"') && trimmed.length >= 2) {
-        try {
-          return ok(JSON.parse(trimmed) as string)
-        } catch (error) {
-          return fail(`Invalid quoted JSON string: ${(error as Error).message}`)
-        }
-      }
-      return unescapeJsonString(input)
+      const decoded = decodeJsonStringContent(input)
+      return decoded.error !== undefined ? fail(decoded.error) : ok(decoded.value ?? '')
     },
   },
   {
